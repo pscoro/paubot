@@ -148,6 +148,7 @@ module.exports = class WBViewCommand extends Commando.Command {
                                 }
                             } else if (result[0].length > 0) {
                                 if (result[0]) {
+                                    
                                     if(result[0][0].facetMedia && result[0][0].facetMedia.length > 0) {
                                         firstImage = result[0][0].facetMedia.split(", ")[0].split(": ")[0];
                                     } else {
@@ -166,6 +167,7 @@ module.exports = class WBViewCommand extends Commando.Command {
                                         linkIDsList = linkIDsList.substring(0, linkIDsList.length-2);
                                         console.log(linkIDsList);
                                         db.query(`SELECT * FROM guild_${message.guild.id} WHERE facetId IN (${linkIDsList})`).then((result2) => {
+                                            console.log("OOOOOOOOOOOOOOOOOOOOO");
                                             if(result2[0] && result2[0].length > 0) {
                                                 if(result2[0] && result2[0].length > 0) {
                                                     for(var i = 0; i < result2[0].length; i++) {
@@ -205,6 +207,35 @@ module.exports = class WBViewCommand extends Commando.Command {
                                                     }
                                                 }).catch(err => console.log(err));
                                             
+                                        }).catch(err => console.log(err));
+                                    } else {
+                                        viewEmbed = new Discord.MessageEmbed()
+                                            .setColor('#99ff00')
+                                            .setTitle(result[0][0].facetName)
+                                            .setDescription('ID #' + result[0][0].facetId)
+                                            .addFields(
+                                                { name: 'Author', value: this.client.users.cache.get(result[0][0].facetAuthor).tag },
+                                                { name: 'Type', value: result[0][0].facetType },
+                                                { name: 'Tag(s)', value: result[0][0].facetTags },
+                                                { name: 'Description', value: result[0][0].facetDesc },
+                                                { name: 'Related Links', value: linksText}
+                                            )
+                                            .setImage(firstImage)
+                                            .setFooter('Consider using imgur to host media', 'https://cdn.discordapp.com/app-icons/592736284816965663/8223af4828cc8d2db1c5fffcca3acfa0.png?size=512');
+            
+                                        db.query(`SELECT * FROM guild_${message.guild.id} WHERE facetTags = '${result[0][0].facetId}' AND facetType = 'section'`).then(sectionResult => {
+                                            if (sectionResult[0] && sectionResult[0].length > 0) {
+                                                for(var i = 0; i < sectionResult[0].length; i++) {
+                                                    viewEmbed
+                                                        .addFields(
+                                                            {name: sectionResult[0][0].facetName, value: sectionResult[0][0].facetDesc }
+                                                        )
+                                                }
+                                                message.channel.send(viewEmbed);
+
+                                            } else {
+                                                message.channel.send(viewEmbed);
+                                            }
                                         }).catch(err => console.log(err));
                                     }
                                 }
