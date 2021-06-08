@@ -60,7 +60,7 @@ module.exports = class WBCreateCommand extends Commando.Command {
                                                 descText = descText.trim();
                                             
                                                 console.log(descText);
-                                                db.query(`INSERT INTO worlds VALUES('${message.guild.id}', '${nameText}', '${descText}')`);
+                                                db.query(`INSERT INTO worlds (guildId, worldName, worldDesc) VALUES('${message.guild.id}', '${nameText}', '${descText}')`);
                                                 var createTable = "CREATE TABLE IF NOT EXISTS guild_" + message.guild.id.toString() + " (facetId INT NOT NULL PRIMARY KEY AUTO_INCREMENT, facetAuthor VARCHAR(100) NOT NULL, facetType VARCHAR(100) NOT NULL, facetName VARCHAR(100) NOT NULL, facetTags TEXT, facetDesc TEXT, facetLinks TEXT, facetMedia TEXT)";
                                                 db.query(createTable);
                                                 let newEnergy = result[0][0].energy - 100;
@@ -145,6 +145,35 @@ module.exports = class WBCreateCommand extends Commando.Command {
                                                             .then(result => {
                                                                 console.log(result[0]);
                                                                 message.reply('Facet #' + result[0][0].facetId + ' created.');
+
+                                                                db.query(`SELECT * FROM worlds WHERE guildId = '${message.guild.id}'`).then(guildResult => {
+                                                                    if (guildResult[0] && guildResult[0].length > 0) {
+
+                                                                        if (guildResult[0][0].isContestRunning == 1) {
+                                                                            if(guildResult[0][0].contestType && guildResult[0][0].contestTag && guildResult[0][0].contestType.length > 0 && guildResult[0][0].contestTag.length > 0) {
+                                                                                let tags = result[0][0].facetTags.split(", ");
+                                                                            
+                                                                                if (tags.includes(guildResult[0][0].contestTag) && result[0][0].facetType === guildResult[0][0].contestType) {
+                                                                                    if (guildResult[0][0].contestEntries && guildResult[0][0].contestEntries.length > 0) {
+                                                                                        let newContestEntriesText = guildResult[0][0].contestEntries + ", " + result[0][0].facetId + ": 0";
+                                            
+                                                                                        db.query(`UPDATE worlds SET contestEntries = '${newContestEntriesText}' WHERE guildId = '${message.guild.id}'`).then(() => {
+                                                                                            message.reply("Your contest entry has been added.");
+                                                                                        }).catch(err => console.log(err));
+                                                                                    } else {
+                                                                                        let newContestEntriesText = guildResult[0][0].contestEntries + ", " + result[0][0].facetId + ": 0";
+                                            
+                                                                                        db.query(`UPDATE worlds SET contestEntries = '${newContestEntriesText}' WHERE guildId = '${message.guild.id}'`).then(() => {
+                                                                                            message.reply("Your contest entry has been added.");
+                                                                                        }).catch(err => console.log(err));
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    } else {
+                                                                        message.channel.send("A world has not yet been created for this server.");
+                                                                    }
+                                                                }).catch(err => console.log(err));
                                                             }).catch(err => console.log(err));
                                                         }).catch(err => console.log(err));
                                                         

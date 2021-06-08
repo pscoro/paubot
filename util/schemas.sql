@@ -10,7 +10,9 @@ CREATE TABLE users (
 CREATE TABLE worlds (
     guildId VARCHAR(100) NOT NULL PRIMARY KEY,
     worldName VARCHAR(100) NOT NULL,
-    worldDesc TEXT NOT NULL
+    worldDesc TEXT NOT NULL,
+    contestIsRunning BIT DEFAULT 0,
+    contestEntries TEXT
 );
 
 CREATE TABLE facets (
