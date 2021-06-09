@@ -148,21 +148,24 @@ module.exports = class WBCreateCommand extends Commando.Command {
 
                                                                 db.query(`SELECT * FROM worlds WHERE guildId = '${message.guild.id}'`).then(guildResult => {
                                                                     if (guildResult[0] && guildResult[0].length > 0) {
-
+                                                                        console.log(guildResult[0]);
                                                                         if (guildResult[0][0].isContestRunning == 1) {
                                                                             if(guildResult[0][0].contestType && guildResult[0][0].contestTag && guildResult[0][0].contestType.length > 0 && guildResult[0][0].contestTag.length > 0) {
                                                                                 let tags = result[0][0].facetTags.split(", ");
                                                                             
                                                                                 if (tags.includes(guildResult[0][0].contestTag) && result[0][0].facetType === guildResult[0][0].contestType) {
+                                                                                    console.log("You got here");
+                                                                                    let newContestEntriesText = "";
                                                                                     if (guildResult[0][0].contestEntries && guildResult[0][0].contestEntries.length > 0) {
-                                                                                        let newContestEntriesText = guildResult[0][0].contestEntries + ", " + result[0][0].facetId + ": 0";
+                                                                                        if (guildResult[0][0].contestEntries == null || guildResult[0][0].contestEntries === "null") newContestEntriesText = result[0][0].facetId + ": 0";
+                                                                                        else newContestEntriesText = guildResult[0][0].contestEntries + ", " + result[0][0].facetId + ": 0";
                                             
                                                                                         db.query(`UPDATE worlds SET contestEntries = '${newContestEntriesText}' WHERE guildId = '${message.guild.id}'`).then(() => {
                                                                                             message.reply("Your contest entry has been added.");
                                                                                         }).catch(err => console.log(err));
                                                                                     } else {
-                                                                                        let newContestEntriesText = guildResult[0][0].contestEntries + ", " + result[0][0].facetId + ": 0";
-                                            
+                                                                                        newContestEntriesText = result[0][0].facetId + ": 0";
+
                                                                                         db.query(`UPDATE worlds SET contestEntries = '${newContestEntriesText}' WHERE guildId = '${message.guild.id}'`).then(() => {
                                                                                             message.reply("Your contest entry has been added.");
                                                                                         }).catch(err => console.log(err));

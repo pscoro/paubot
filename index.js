@@ -22,6 +22,10 @@ client.on('ready', () => {
   client.user.setActivity(
     `${PREFIX}help | Running on ${client.guilds.cache.size} servers`
   );
+
+  client.on("error", () => {
+    process.exit(0);
+  });
   
   client.registry
   .registerGroups([
